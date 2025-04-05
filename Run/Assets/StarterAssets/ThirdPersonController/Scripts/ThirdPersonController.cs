@@ -1,6 +1,7 @@
 ﻿ using UnityEngine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 #endif
 
 /* Note: animations are called via the controller for both the character and capsule using animator null checks
@@ -22,23 +23,25 @@ namespace StarterAssets
         [Tooltip("Sprint speed of the character in m/s")]
         public float SprintSpeed = 10.0f;
         public bool isSprinting = false;
-        
+
         //---耐力---
-        //public Slider staminaSlider;
-        //public GameObject staminaSliderGOBJ;
-        //public Image fillImage;
-        public float stamina = 0;
+        [Header("Player stamina - 耐力条")]
+
+        public Slider staminaSlider;
+        public GameObject staminaSliderGOBJ;
+        public Image fillImage;
+        public float currentStamina = 0;
         public float maxStamina = 5f;
 
 
-        [Header("Player Chrouching")]
+        [Header("Player Chrouching - 蹲")]
         [Tooltip("Crouching Speed of Character in m/s")]
          float crouchSpeed = 3f;
          float crouchHeight = 0f;
         public bool isCrouching = false;
         public float standHeight = 1.58f;
 
-        [Header("Player in Grass")]
+        [Header("Player in Grass-隐匿")]
         public bool isInGrass = false;
 
 
@@ -172,10 +175,10 @@ namespace StarterAssets
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
 
-            stamina = maxStamina;
-            //staminaSlider.maxValue = maxStamina;
-            //staminaSlider.value = stamina;
-            //staminaSliderGOBJ.SetActive(false);
+            currentStamina = maxStamina;
+            staminaSlider.maxValue = maxStamina;
+            staminaSlider.value = currentStamina;
+            staminaSliderGOBJ.SetActive(false);
 
         }
 
@@ -261,14 +264,14 @@ namespace StarterAssets
 
 
             }
-            else if (_input.sprint && stamina > 3f) //Sprint
+            else if (_input.sprint && currentStamina > 3f) //Sprint
             {
                 _controller.height = standHeight;
                 targetSpeed = SprintSpeed;
                 isSprinting = true;
 
             }
-            else if (!_input.sprint || stamina <= 0f)  //Walk
+            else if (!_input.sprint || currentStamina <= 0f)  //Walk
             {
                 _controller.height = standHeight;
                 targetSpeed = MoveSpeed;
@@ -344,44 +347,44 @@ namespace StarterAssets
 
         void UpdateStamina()
         {
-            //staminaSlider.value = stamina;
+            staminaSlider.value = currentStamina;
             if (isSprinting)
             {
                 //Decrease
-                stamina -= Time.deltaTime;
-                if (stamina <= 0f)
+                currentStamina -= Time.deltaTime;
+                if (currentStamina <= 0f)
                 {
-                    stamina = 0f;
+                    currentStamina = 0f;
                 }
             }
             else
             {
                 //Add
-                stamina += Time.deltaTime;
-                if (stamina >= maxStamina)
+                currentStamina += Time.deltaTime;
+                if (currentStamina >= maxStamina)
                 {
-                    stamina = maxStamina;
+                    currentStamina = maxStamina;
                 }
             }
 
             //Color Ctrl
-            //if (stamina <= 3)
-            //{
-            //    fillImage.color = Color.red;
-            //}
-            //else
-            //{
-            //    fillImage.color = Color.green;
-            //}
+            if (currentStamina <= 3)
+            {
+                fillImage.color = Color.red;
+            }
+            else
+            {
+                fillImage.color = Color.green;
+            }
 
-            //if (stamina >= maxStamina)
-            //{
-            //    staminaSliderGOBJ.SetActive(false);
-            //}
-            //else
-            //{
-            //    staminaSliderGOBJ.SetActive(true);
-            //}
+            if (currentStamina >= maxStamina)
+            {
+                staminaSliderGOBJ.SetActive(false);
+            }
+            else
+            {
+                staminaSliderGOBJ.SetActive(true);
+            }
         }
 
 
