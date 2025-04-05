@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static System.Net.Mime.MediaTypeNames;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -16,6 +15,10 @@ public class PlayerHealth : MonoBehaviour
     public Slider hpSlider;
 
     public ThirdPersonController personController;
+
+    [Header("Rehealing- 一段时间没受伤后后自动回血")]
+    float currentTimer = 0;
+    float targetTimer = 15f;
 
 
     [Header("Screen Shake")]
@@ -36,6 +39,8 @@ public class PlayerHealth : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Rehealing();
+        hpSlider.value = currentHp;
 
     }
 
@@ -43,7 +48,6 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHp -= damage;
 
-        hpSlider.value = currentHp;
 
         Impulse.GenerateImpulse();
 
@@ -55,6 +59,24 @@ public class PlayerHealth : MonoBehaviour
         if (currentHp <= 0)
         {
             PlayerDie();
+        }
+    }
+
+    public void Rehealing()
+    {
+        if ( currentHp < maxHp ) //如果受伤才执行,暂时没添加敌人的上一次攻击时间
+        {
+            //开始计时
+            currentTimer += Time.deltaTime;
+            if ( currentTimer >= targetTimer )
+            {
+                currentHp += 1 * Time.deltaTime;
+
+            }
+        }
+        else
+        {
+            currentTimer= 0;
         }
     }
 
