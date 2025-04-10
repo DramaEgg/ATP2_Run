@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
@@ -15,43 +17,76 @@ public class CameraMovement : MonoBehaviour
     public float minDistance = 2;
     public float maxDistance = 30;
 
-    float rotationAngle = 45f;
     bool rightMouseClicked = false;
 
+    float currentAngle = 0f;
+    float targetAngle = 0f;
+    float rotationAngle = 45f;
+
+    public float height = 2f;             // 摄像机高度
+    public float rotationSpeed = 5f;      // 旋转插值速度
+    bool isRotating = false;
+
+    float damping = 2f;
     //bool needDamping = false;
     public bool needDamping = true;
-    float damping = 5.0f;
 
-    public float x = 0.0f;
-    public float y = 0.0f;
+    public float x, y;
 
     [Header("Camera Follow")]
     public Transform playerPos;
+    private Vector3 targetPosition;
 
-    public float followDistance;
-    public float followSpeed;
+    public float followDistance = 4.97f;
+    public float followSpeed = 3.5f;
 
     private Vector3 initialOffset;
-    
-    
+
+    private Quaternion targetRotation;
 
 
     void Start()
     {
-        initialOffset = transform.position-playerPos.position;
+        initialOffset = transform.position - playerPos.position;
 
         Vector3 angles = transform.eulerAngles;
         x = angles.y;
         y = angles.x;
+     
+        targetRotation = transform.rotation;
     }
 
-    void LateUpdate()
+        void LateUpdate()
     {
         CameraRotate();
         CameraFollow();
     }
 
-    void CameraRotate() 
+
+
+    void CameraFollow()
+    {
+        Vector3 targetPos = playerPos.position + initialOffset;
+        Vector3 currentOffset = transform.position - playerPos.position;
+
+        float currentDistance = currentOffset.magnitude;
+
+        if (currentDistance > followDistance)
+        {
+            transform.position = Vector3.Lerp(transform.position, targetPos, followSpeed * Time.deltaTime);
+        }
+    }
+
+    static float ClampAngle(float angle, float min, float max)
+    {
+        if (angle < -360)
+            angle += 360;
+        if (angle > 360)
+            angle -= 360;
+        return Mathf.Clamp(angle, min, max);
+    }
+
+    void CameraRotate()
     {
         if (rotateTarget)
         {
@@ -86,29 +121,6 @@ public class CameraMovement : MonoBehaviour
         }
 
     }
-
-    void CameraFollow() 
-    {
-        Vector3 targetPos = playerPos.position + initialOffset;
-        Vector3 currentOffset = transform.position - playerPos.position;
-
-        float currentDistance = currentOffset.magnitude;
-
-        if (currentDistance > followDistance)
-        {
-            transform.position = Vector3.Lerp(transform.position, targetPos, followSpeed * Time.deltaTime);
-        }
-    }
-
-    static float ClampAngle(float angle, float min, float max)
-    {
-        if (angle < -360)
-            angle += 360;
-        if (angle > 360)
-            angle -= 360;
-        return Mathf.Clamp(angle, min, max);
-    }
-
 
 
 }

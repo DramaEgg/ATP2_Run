@@ -11,9 +11,9 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private float holdForce = 10f;
 
     [Header("发射设置")]
-    [SerializeField] private float minLaunchForce = 5f;
-    [SerializeField] private float maxLaunchForce = 20f;
-    [SerializeField] private float chargeRate = 5f;
+    //[SerializeField] private float minLaunchForce = 5f;
+    //[SerializeField] private float maxLaunchForce = 20f;
+    //[SerializeField] private float chargeRate = 5f;
     [SerializeField] private LineRenderer aimLine;
 
     [Header("角色朝向")]
@@ -31,9 +31,7 @@ public class PlayerInteraction : MonoBehaviour
     public Camera mainCamera;
 
     // 按键持续时间跟踪
-    private float fKeyHoldTime = 0f;
     public bool isFKeyDown = false;
-    private float fKeyHoldThreshold = 0.5f; // 长按F键的阈值时间(秒)
 
     public void Start()
     {
@@ -87,15 +85,19 @@ public class PlayerInteraction : MonoBehaviour
         //}
 
 
-        if (isFKeyDown)
+        if (isFKeyDown && isHolding)
         {
             if (Input.GetMouseButtonDown(0))
+            {
                 isAiming = true;
-            if (Input.GetMouseButtonUp(0))
+                StartCharging();
+            }
+            else if (Input.GetMouseButtonUp(0) && isCharging)
             {
                 LaunchObj();
                 isFKeyDown = false;
             }
+            Charging();
         }
         else
         {
@@ -252,13 +254,18 @@ public class PlayerInteraction : MonoBehaviour
         //aimLine.SetPosition(1, launchPoint.transform.position + currentAimDirection * 5f);
     }
 
-
-
+    float currentForceMultiplier = 1f;
+    float minForceMultiplier = 1f;
+    float maxForceMul = 5f;
+    float chargingSpeed = 2f;
+    bool isCharging = false;
+    float chargeDirection = 1f; //1 = add, -1 = less
 
     //Normal 1.0Ver
     public void LaunchObj()
     {
         isAiming = false;
+        isCharging = false;
         if (heldObject!= null)
         {
             heldRigidbody.useGravity = true;
@@ -267,16 +274,48 @@ public class PlayerInteraction : MonoBehaviour
                 heldObject.GetComponent<Collider>().enabled = true;
             }
 
-            heldRigidbody.AddForce(transform.forward * launchForce, ForceMode.Impulse);
+            float actualLaunchForce = launchForce * currentForceMultiplier;
+            heldRigidbody.AddForce(transform.forward * actualLaunchForce, ForceMode.Impulse);
 
             // 重置变量
             heldObject = null;
             heldRigidbody = null;
             isHolding = false;
+            currentForceMultiplier = minForceMultiplier;
 
         }
     }
 
+    public void StartCharging()
+    {
+        if (heldObject != null && !isCharging )
+        {
+            isCharging= true;
+            currentForceMultiplier = minForceMultiplier;
+        }
+    }
+
+    public void Charging()
+    {
+        if (isCharging)
+        {
+            currentForceMultiplier += chargeDirection * chargingSpeed * Time.deltaTime;
+
+            if (currentForceMultiplier >= maxForceMul)
+            {
+                currentForceMultiplier = maxForceMul;
+                chargingSpeed = -1f;
+            }
+            else if (currentForceMultiplier <= minForceMultiplier)
+            {
+                currentForceMultiplier = minForceMultiplier;
+                chargingSpeed = 1f;
+            }
+
+            //添加UI在这里显示当前力度
+        }
+    
+    }
 
 
     // 绘制交互范围（仅在编辑器中可见，帮助调试）
