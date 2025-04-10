@@ -32,7 +32,7 @@ public class PlayerInteraction : MonoBehaviour
 
     // 按键持续时间跟踪
     private float fKeyHoldTime = 0f;
-    private bool isFKeyDown = false;
+    public bool isFKeyDown = false;
     private float fKeyHoldThreshold = 0.5f; // 长按F键的阈值时间(秒)
 
     public void Start()
@@ -72,18 +72,20 @@ public class PlayerInteraction : MonoBehaviour
             UpdateRotation();
         }
 
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            PickUpObj();
-            Debug.Log("Down");
-            isFKeyDown= true;
-        }
-        if (Input.GetKeyUp(KeyCode.F))
-        {
-            DropObject();
-            isFKeyDown = false;
-            Debug.Log("UP");
-        }
+       
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                PickUpObj();
+                Debug.Log("Down");
+                //isFKeyDown = !isFKeyDown;
+            }
+        
+        //if (Input.GetKeyUp(KeyCode.F))
+        //{
+        //    DropObject();
+        //    isFKeyDown = false;
+        //    Debug.Log("UP");
+        //}
 
 
         if (isFKeyDown)
@@ -91,7 +93,10 @@ public class PlayerInteraction : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
                 isAiming = true;
             if (Input.GetMouseButtonUp(0))
-                LaunchObj(); 
+            {
+                LaunchObj();
+                isFKeyDown = false;
+            }
         }
         else
         {
@@ -151,6 +156,7 @@ public class PlayerInteraction : MonoBehaviour
                     heldObject.GetComponent<Collider>().enabled = false;
                 }
 
+                isFKeyDown = !isFKeyDown;//New IN
                 isHolding = true;
             }
         }
