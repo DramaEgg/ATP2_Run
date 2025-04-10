@@ -77,7 +77,6 @@ public class PlayerInteraction : MonoBehaviour
             {
                 PickUpObj();
                 Debug.Log("Down");
-                //isFKeyDown = !isFKeyDown;
             }
         
         //if (Input.GetKeyUp(KeyCode.F))

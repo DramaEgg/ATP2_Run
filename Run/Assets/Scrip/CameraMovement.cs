@@ -15,6 +15,9 @@ public class CameraMovement : MonoBehaviour
     public float minDistance = 2;
     public float maxDistance = 30;
 
+    float rotationAngle = 45f;
+    bool rightMouseClicked = false;
+
     //bool needDamping = false;
     public bool needDamping = true;
     float damping = 5.0f;
@@ -55,9 +58,13 @@ public class CameraMovement : MonoBehaviour
             //use the light button of mouse to rotate the camera
             if (Input.GetMouseButton(1))
             {
-                x += Input.GetAxis("Mouse X") * xSpeed * 0.02f;//
-                y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
+                //x += Input.GetAxis("Mouse X") * xSpeed * 0.02f;//
+                //y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
 
+                x += rotationAngle;
+
+                if (x >= 360) x -= 360;
+                rightMouseClicked = true;
                 y = ClampAngle(y, yMinLimit, yMaxLimit);
             }
             //distance -= Input.GetAxis("Mouse ScrollWheel") * mSpeed;
@@ -91,8 +98,6 @@ public class CameraMovement : MonoBehaviour
         {
             transform.position = Vector3.Lerp(transform.position, targetPos, followSpeed * Time.deltaTime);
         }
-       
-       
     }
 
     static float ClampAngle(float angle, float min, float max)
