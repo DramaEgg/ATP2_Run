@@ -71,11 +71,20 @@ public class PlayerInteraction : MonoBehaviour
         }
 
        
-            if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            isFKeyDown = !isFKeyDown;//New IN
+
+            if (isFKeyDown)
             {
                 PickUpObj();
-                Debug.Log("Down");
             }
+            else
+            {
+                DropObject();
+            }
+            Debug.Log("Down");
+        }
         
         //if (Input.GetKeyUp(KeyCode.F))
         //{
@@ -139,7 +148,7 @@ public class PlayerInteraction : MonoBehaviour
         FindNearestInteractableObject();
 
         // 如果找到了可交互物体
-        if (nearestObject != null)
+        if (nearestObject != null && !isHolding)
         {
             // 获取物体的刚体组件
             Rigidbody rb = nearestObject.GetComponent<Rigidbody>();
@@ -157,7 +166,7 @@ public class PlayerInteraction : MonoBehaviour
                     heldObject.GetComponent<Collider>().enabled = false;
                 }
 
-                isFKeyDown = !isFKeyDown;//New IN
+                //isFKeyDown = !isFKeyDown;//New IN
                 isHolding = true;
             }
         }
