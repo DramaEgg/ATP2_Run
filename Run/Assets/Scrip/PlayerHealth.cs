@@ -17,12 +17,14 @@ public class PlayerHealth : MonoBehaviour
     public ThirdPersonController personController;
 
     [Header("Rehealing- 一段时间没受伤后后自动回血")]
-    float currentTimer = 0;
-    float targetTimer = 15f;
+    float healingDelay = 15f;
 
 
     [Header("Screen Shake")]
     public CinemachineImpulseSource Impulse;
+
+    //Last time take Damage 上次受伤的时间
+    private float lastDamageTime;
 
 
     // Start is called before the first frame update
@@ -50,7 +52,8 @@ public class PlayerHealth : MonoBehaviour
 
 
         Impulse.GenerateImpulse();
-
+        
+        lastDamageTime = Time.time;
 
         //personController.animator.SetBool("isHurt", true);
 
@@ -64,19 +67,19 @@ public class PlayerHealth : MonoBehaviour
 
     public void Rehealing()
     {
-        if ( currentHp < maxHp ) //如果受伤才执行,暂时没添加敌人的上一次攻击时间
-        {
-            //开始计时
-            currentTimer += Time.deltaTime;
-            if ( currentTimer >= targetTimer )
-            {
-                currentHp += 1 * Time.deltaTime;
 
-            }
-        }
-        else
+        if (currentHp >= maxHp)
         {
-            currentTimer= 0;
+            currentHp = maxHp;
+            return;
+        }
+
+        float timeSinceLastDamage = Time.time - lastDamageTime;
+
+        if (timeSinceLastDamage >= healingDelay)
+        {
+            currentHp += 1 * Time.deltaTime;
+            currentHp = Mathf.Min(currentHp, maxHp);
         }
     }
 
