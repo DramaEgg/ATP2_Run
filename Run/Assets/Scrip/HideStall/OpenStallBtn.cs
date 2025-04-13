@@ -6,19 +6,22 @@ public class OpenStallBtn : MonoBehaviour
 {
     public bool doorOpened = false;//false是关，true是开门
 
-    public Transform pivotPoint;
+    public Transform pivotPoint,detectCenter;
     public float rotationSpeed = 90f;
 
-    public GameObject targetDoor;
+    //public GameObject targetDoor;
 
     private bool isRotating = false;
 
-    public Quaternion initialRotation,targetRotation;
+    private Quaternion initialRotation,targetRotation;
+
+    [Header("Detect Radius F检测距离")]
+    public float detectionRadius = 1.18f;
 
     // Start is called before the first frame update
     void Start()
     {
-        initialRotation = targetDoor.transform.rotation;
+        initialRotation = transform.rotation;
         targetRotation = initialRotation;
     }
 
@@ -27,32 +30,31 @@ public class OpenStallBtn : MonoBehaviour
     {
         if (isRotating)
         {
-            targetDoor.transform.rotation = Quaternion.Slerp(targetDoor.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+           transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
 
             // 检查是否已经接近目标旋转
-            if (Quaternion.Angle(targetDoor.transform.rotation, targetRotation) < 0.9f)
+            if (Quaternion.Angle(transform.rotation, targetRotation) < 0.9f)
             {
-                targetDoor.transform.rotation = targetRotation;
+               transform.rotation = targetRotation;
                 isRotating = false;
             }
         }
-    }
 
-    public void OnTriggerStay(Collider other)
-    {
-        if (other.CompareTag("Player"))
+        if (Input.GetKeyDown(KeyCode.F) && !isRotating)
         {
-            if (Input.GetKeyDown(KeyCode.F) && !isRotating)
+            if (IsPlayerNearby())
             {
-                //Open the Door,play the animation
                 doorOpened = !doorOpened;
                 DoorCtrl();
             }
         }
     }
 
+
     public void DoorCtrl()
     {
+        StopAllCoroutines();
+
         if (!doorOpened)
         {
             StartCoroutine(RotateDoor(-90));
@@ -63,25 +65,51 @@ public class OpenStallBtn : MonoBehaviour
         }
     }
 
-    // 协程处理旋转动画
+    /// <summary>
+    /// 门旋转协程函数 Door rotate function
+    /// </summary>
     private IEnumerator RotateDoor(float angle)
     {
         isRotating = true;
 
         // 保存当前物体的世界位置
-        Vector3 originalPosition = targetDoor.transform.position;
+        Vector3 originalPosition = transform.position;
 
         // 计算相对于锚点的旋转
-        targetDoor.transform.RotateAround(pivotPoint.position, Vector3.down, angle);
+        transform.RotateAround(pivotPoint.position, Vector3.down, angle);
 
         // 计算新的目标旋转
-        targetRotation = targetDoor.transform.rotation;
+        targetRotation = transform.rotation;
 
         // 恢复原始位置，让旋转在Update中平滑进行
-        targetDoor.transform.position = originalPosition;
+        transform.position = originalPosition;
 
         yield return null;
     }
 
+    /// <summary>
+    /// 检测玩家是否在附近 detect if player nearby the target door.
+    /// </summary>
+    public bool IsPlayerNearby()
+    {
+
+        Collider[] hitColliders = Physics.OverlapSphere(detectCenter.position, detectionRadius);
+
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.CompareTag("Player"))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        // 绘制检测范围的球体
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(detectCenter.position, detectionRadius);
+    }
 
 }
