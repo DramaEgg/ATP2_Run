@@ -44,6 +44,14 @@ namespace StarterAssets
         [Header("Player in Grass-隐匿")]
         public bool isInGrass = false;
 
+        [Header("Player Steap Sound")]
+        public float currentSound;
+        public float standSound = 0;
+        public float walkSound = 5;
+        public float sprintSound = 8;
+        public float crouchSound = 3;
+
+
 
         [Tooltip("How fast the character turns to face movement direction")]
         [Range(0.0f, 0.3f)]
@@ -189,6 +197,7 @@ namespace StarterAssets
             JumpAndGravity();
             GroundedCheck();
             Move();
+            MoveSoundVolume();
         }
 
         private void LateUpdate()
@@ -376,6 +385,27 @@ namespace StarterAssets
             else
             {
                 staminaSliderGOBJ.SetActive(true);
+            }
+        }
+
+
+        void MoveSoundVolume()
+        {
+            if (targetSpeed == MoveSpeed)
+            {
+                currentSound = walkSound;
+            }
+            else if (targetSpeed == SprintSpeed)
+            {
+                currentSound = sprintSound;
+            }
+            else if (targetSpeed == crouchSpeed)
+            {
+                currentSound = crouchSound;
+            }
+            else
+            {
+                currentSound = standSound;
             }
         }
 

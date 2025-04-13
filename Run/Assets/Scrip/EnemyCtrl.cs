@@ -301,7 +301,7 @@ public class EnemyCtrl : MonoBehaviour
 
     public void playerDetected()
     { 
-        lastAlertTriggerTime= Time.time;
+        lastAlertTriggerTime = Time.time;
     }
 
     void UpdateState()

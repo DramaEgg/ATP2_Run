@@ -470,6 +470,7 @@ GameObject:
   - component: {fileID: 213639262}
   - component: {fileID: 213639261}
   - component: {fileID: 213639264}
+  - component: {fileID: 213639265}
   m_Layer: 7
   m_Name: Enemy1
   m_TagString: Enemy001
@@ -593,6 +594,22 @@ CapsuleCollider:
   m_Height: 2.0479445
   m_Direction: 1
   m_Center: {x: 0, y: -0.019028425, z: 0}
+--- !u!114 &213639265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 213639260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa73aae3b4d2b254387ab8e4eea6d1dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerObj: {fileID: 2972037835945180380}
+  playerController: {fileID: 2972037835945180375}
+  enemyCtrl: {fileID: 213639261}
+  alertRadius: 15.62
 --- !u!1 &242553357
 GameObject:
   m_ObjectHideFlags: 0
@@ -3833,7 +3850,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1984123053
 Transform:
   m_ObjectHideFlags: 0
@@ -3866,7 +3883,7 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
@@ -3883,8 +3900,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerObj: {fileID: 2972037835945180380}
+  playerController: {fileID: 0}
   enemyCtrl: {fileID: 213639261}
-  soundRadius: 0
+  alertRadius: 0
 --- !u!1 &2054331455
 GameObject:
   m_ObjectHideFlags: 0
