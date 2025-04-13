@@ -378,11 +378,15 @@ public class EnemyCtrl : MonoBehaviour
 
             case EnemyState.Return:
                 ReturnToStart();
-
-                if (currentAlertLevel >= chasedLevel)
+                if (Vector3.Distance(transform.position, startPos) < 1.0f)
+                {
+                    ChangeState(EnemyState.Patrol); // 到达起始位置后返回巡逻状态
+                }
+                // 检查是否需要追击玩家
+                else if (currentAlertLevel >= chasedLevel)
                 {
                     ChangeState(EnemyState.Chase);
-                }
+                } 
                 break;
             //case EnemyState.Die:
             //    EnemyDie();
@@ -613,6 +617,10 @@ public class EnemyCtrl : MonoBehaviour
     {
         Debug.Log("Return To Start");
         agent.SetDestination(startPos);
+        if (!agent.hasPath || agent.pathStatus == UnityEngine.AI.NavMeshPathStatus.PathInvalid)
+        {
+            ChangeState(EnemyState.Patrol);
+        }
     }
 
 
@@ -697,10 +705,7 @@ public class EnemyCtrl : MonoBehaviour
     }
 }
 
-    public void CheckForSound()
-    { 
-        
-    }
+
 
     private Vector3 soundInvestigationPosition;
     private bool isInvestigatingSound = false;
@@ -727,8 +732,8 @@ public class EnemyCtrl : MonoBehaviour
             }
         }
 
-        // 无论如何，更新警戒值
-        playerDetected();
+        //// 无论如何，更新警戒值
+        //playerDetected();
     }
 
     private Vector3 RandomNavMeshPoint(Vector3 center, float radius) 

@@ -82,15 +82,14 @@ public class SoundCheck : MonoBehaviour
             float distanceRatio = 1.0f - (distanceToSound / soundRadius);
             float alertIncrease = soundIntensity * distanceRatio * projectileSoundMultiplier;
 
-            // 增加警戒值
-            enemyCtrl.currentAlertLevel += alertIncrease;
+            float maxAlertFromSound = enemyCtrl.chasedLevel * 0.8f;
+            float newAlertLevel = Mathf.Min(enemyCtrl.currentAlertLevel + alertIncrease, maxAlertFromSound);
+            enemyCtrl.currentAlertLevel = newAlertLevel;
 
-            // 如果应该调查声音
-            if (shouldInvestigateProjectileSounds)
-            {
+            
                 // 通知敌人去调查声音位置
                 enemyCtrl.InvestigateSound(soundPosition);
-            }
+            
 
             Debug.Log($"敌人听到声音！距离：{distanceToSound:F2}，警戒值增加：{alertIncrease:F2}");
         }
