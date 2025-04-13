@@ -11,12 +11,12 @@ using UnityEngine.UI;
 public class EnemyCtrl : MonoBehaviour
 {
     private NavMeshAgent agent;
-    
+
 
     public enum EnemyState
     {
         Idle,
-        Patrol, 
+        Patrol,
         Chase,
         Attack,
         Return,
@@ -28,7 +28,7 @@ public class EnemyCtrl : MonoBehaviour
 
     [Header("Timer")]
     public float stateTimer = 0f;
-    public float idleTime = 2f; 
+    public float idleTime = 2f;
     public float searchTimer = 0f;
     public float searchDuration = 3f;
 
@@ -37,26 +37,27 @@ public class EnemyCtrl : MonoBehaviour
 
 
     [Header("Enemy Speed in different States")]
-        
-        public float patrolSpeed;
-        public float chaseSpeed;
 
-        public float attackDistance = 0.5f;
-        public float turnSpeed;
+    public float patrolSpeed;
+    public float chaseSpeed;
+
+    public float attackDistance = 0.5f;
+    public float turnSpeed;
 
     [Header("Patroling")]
-        public Vector3 startPos;
-        public float waitTime = 3f;
-        public Vector3[] wayPoints;
-  
-    
+    public Vector3 startPos;
+    public float waitTime = 3f;
+    public Vector3[] wayPoints;
+
+
     [Header("Random Searching")]
-        public Vector3 lastShownPos;
-        public float patrolRadius = 20f;
+    public Vector3 lastShownPos;
+    public float patrolRadius = 20f;
 
     [Header("Alert")]
-    public float currentAlertLevel=0;
+    public float currentAlertLevel = 0;
     public float maxAlertLevel = 10f;
+    public float chasedLevel = 7f;
     public float lastAlertTriggerTime;
     public float quietTime = 3f;
 
@@ -72,14 +73,14 @@ public class EnemyCtrl : MonoBehaviour
 
     [Header("view")]
     public Light spotLight;
-    public float viewDistance =10f;
+    public float viewDistance = 10f;
     public LayerMask viewMask;
-    float viewAngle = 180f;
+    float viewAngle = 90f;
 
 
     [Header("Path Transform")]
-        public Transform pathHolder;
-               Transform player;
+    public Transform pathHolder;
+    Transform player;
 
     [Header("Refering from Player")]
     public GameObject playerObj;
@@ -98,7 +99,7 @@ public class EnemyCtrl : MonoBehaviour
     //public AudioSource enemyADS;
     //public AudioClip attacking;
 
-  
+
     public bool isDead;
 
     public delegate void EnemyDeathHandler(EnemyCtrl enemy);
@@ -108,13 +109,13 @@ public class EnemyCtrl : MonoBehaviour
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-  
+
         startPos = transform.position;
         playerObj = GameObject.FindWithTag("Player");
         playerController = playerObj.GetComponent<ThirdPersonController>();
         playerHealth = playerObj.GetComponent<PlayerHealth>();
 
-        lastAlertTriggerTime= Time.time;
+        lastAlertTriggerTime = Time.time;
 
         //enemyADS = GetComponent<AudioSource>();
 
@@ -129,12 +130,12 @@ public class EnemyCtrl : MonoBehaviour
         agent.speed = patrolSpeed;
 
         //Spot Angle 
-        spotLight.spotAngle = viewAngle ;
+        spotLight.spotAngle = viewAngle;
 
         wayPoints = new Vector3[pathHolder.childCount];
-        
-       //待定
-        for (int i=0; i < wayPoints.Length; i++)
+
+        //待定
+        for (int i = 0; i < wayPoints.Length; i++)
         {
             wayPoints[i] = pathHolder.GetChild(i).position;
             wayPoints[i].y = transform.position.y;
@@ -152,7 +153,7 @@ public class EnemyCtrl : MonoBehaviour
 
     void Update()
     {
-        if (isDead) return; 
+        if (isDead) return;
 
         UpdateState();
 
@@ -185,7 +186,7 @@ public class EnemyCtrl : MonoBehaviour
     //void EnemyHpCtrl()
     //{
     //    EnemyHP -= 1;
-        
+
     //    if (EnemyHP <= 0)
     //    {
     //        Debug.Log("Enemy Die");
@@ -219,33 +220,58 @@ public class EnemyCtrl : MonoBehaviour
         }
     }
 
-    public bool CanSeePlayer() {
+    public bool CanSeePlayer()
+    {
+        if (player == null) return false;
 
-        if (Vector3.Distance(transform.position,player.position) < viewDistance) {
-           
-            Vector3 dirToPlayer = (player.position - transform.position).normalized;
-            float angleBetweenGuardAndPlayer = Vector3.Angle(transform.forward,dirToPlayer);
+        Vector3 directionToPlayer = player.position - transform.position;
+        float distanceToPlayer = directionToPlayer.magnitude;
 
-            if (angleBetweenGuardAndPlayer<viewAngle/2f)  
+        // 检查距离是否在视距内
+        if (distanceToPlayer > viewDistance) return false;
+
+        // 检查夹角是否在视角范围内
+        float angle = Vector3.Angle(transform.forward, directionToPlayer.normalized);
+        if (angle > viewAngle / 2) return false;
+
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, directionToPlayer.normalized, out hit, viewDistance))
+        {
+            if (hit.transform == player)
             {
-                if (!Physics.Linecast(transform.position,player.position,viewMask))
-                {
-                    //is in Grass Check
-                    if (playerController.isInGrass && playerController.isCrouching)
-                    {
-                        return false;
-                    }
-                    return true;
-                }
+                return true;
             }
         }
+
         return false;
     }
+    //public bool CanSeePlayer() {
+
+    //    if (Vector3.Distance(transform.position,player.position) < viewDistance) {
+
+    //        Vector3 dirToPlayer = (player.position - transform.position).normalized;
+    //        float angleBetweenGuardAndPlayer = Vector3.Angle(transform.forward,dirToPlayer);
+
+    //        if (angleBetweenGuardAndPlayer<viewAngle/2f)  
+    //        {
+    //            if (!Physics.Linecast(transform.position,player.position,viewMask))
+    //            {
+    //                //is in Grass Check
+    //                if (playerController.isInGrass && playerController.isCrouching)
+    //                {
+    //                    return false;
+    //                }
+    //                return true;
+    //            }
+    //        }
+    //    }
+    //    return false;
+    //}
 
     void AlertSlider()
     {
         alertSlider.value = currentAlertLevel;
-        
+
         //Slider Show Up
         if (currentAlertLevel > 0)
         {
@@ -253,7 +279,7 @@ public class EnemyCtrl : MonoBehaviour
         }
         else
         {
-           sliderGameObj.SetActive(false);
+            sliderGameObj.SetActive(false);
         }
 
         if (currentAlertLevel < maxAlertLevel)
@@ -271,8 +297,8 @@ public class EnemyCtrl : MonoBehaviour
 
     void AlertBehavior()
     {
-        currentAlertLevel = Mathf.Clamp(currentAlertLevel,0f,maxAlertLevel);
-       // Debug.Log("currentAlertLevel" + currentAlertLevel);
+        currentAlertLevel = Mathf.Clamp(currentAlertLevel, 0f, maxAlertLevel);
+        // Debug.Log("currentAlertLevel" + currentAlertLevel);
         if (CanSeePlayer())
         {
             currentAlertLevel += 3 * Time.deltaTime;
@@ -284,7 +310,7 @@ public class EnemyCtrl : MonoBehaviour
 
     public void alertTimerCheck()
     {
-        if (Time.time - lastAlertTriggerTime > quietTime )
+        if (Time.time - lastAlertTriggerTime > quietTime)
         {
             ReduceAlertLevel();
         }
@@ -300,7 +326,7 @@ public class EnemyCtrl : MonoBehaviour
     }
 
     public void playerDetected()
-    { 
+    {
         lastAlertTriggerTime = Time.time;
     }
 
@@ -311,41 +337,31 @@ public class EnemyCtrl : MonoBehaviour
 
             case EnemyState.Idle:
                 IdleBehavior();
-                if (currentAlertLevel==maxAlertLevel)
+                if (currentAlertLevel >= chasedLevel)
                 {
                     ChangeState(EnemyState.Chase);
                 }
-                //Idle -> Patrol writed in IdleBehavior
-                /* if (stateTimer<=0)
-                 {
-                     ChangeState(EnemyState.Patrol);
-                    stateTimer= 2;
-                 }*/
                 break;
 
             case EnemyState.Patrol:
                 PatrolBehavior(wayPoints);
-                if (currentAlertLevel == maxAlertLevel)
+                if (currentAlertLevel >= chasedLevel)
                 {
                     ChangeState(EnemyState.Chase);
                 }
                 break;
 
             case EnemyState.Chase:
-                ChaseBehavior();
+                //ChaseBehavior();
                 //change it into IEn
-/*                if (Vector3.Distance(transform.position, player.position) < attackDistance)
-                {
-                    ChangeState(EnemyState.Attack);
-                }*/
-                if (currentAlertLevel < maxAlertLevel || Vector3.Distance(transform.position, player.position) > viewDistance)
+                if (currentAlertLevel < chasedLevel && Vector3.Distance(transform.position, player.position) > viewDistance)
                 {
                     ChangeState(EnemyState.Search);
                 }
                 break;
 
             case EnemyState.Attack:
-                AttackBehavior();
+                //AttackBehavior();
                 if (EnemyHP <= 0)
                 {
                     ChangeState(EnemyState.Die);
@@ -354,7 +370,7 @@ public class EnemyCtrl : MonoBehaviour
 
             case EnemyState.Search:
                 SearchArea();
-                if (currentAlertLevel == maxAlertLevel)
+                if (currentAlertLevel >= chasedLevel)
                 {
                     ChangeState(EnemyState.Chase);
                 }
@@ -362,17 +378,8 @@ public class EnemyCtrl : MonoBehaviour
 
             case EnemyState.Return:
                 ReturnToStart();
-                /*if (Vector3.Distance(transform.position,startPos)<=0.1f)
-                {
-                    ChangeState(EnemyState.Patrol);
-                }*/
-                if (Vector3.Distance(transform.position, startPos) < 1f)
-                {
-                    ChangeState(EnemyState.Idle);
-                }
 
-
-                if (currentAlertLevel == maxAlertLevel)
+                if (currentAlertLevel >= chasedLevel)
                 {
                     ChangeState(EnemyState.Chase);
                 }
@@ -385,14 +392,14 @@ public class EnemyCtrl : MonoBehaviour
         }
     }
 
-    void ChangeState(EnemyState newState) 
+    void ChangeState(EnemyState newState)
     {
         if (currentState == newState) return;
-        
-        currentState = newState;
-        
 
-        if (currentBehavior!=null)
+        currentState = newState;
+
+
+        if (currentBehavior != null)
         {
             StopCoroutine(currentBehavior);
         }
@@ -432,28 +439,28 @@ public class EnemyCtrl : MonoBehaviour
                 searchTimer = 0f;
                 break;
 
-            //case EnemyState.Die:
-            //    EnemyDie();
-            //    agent.speed = 0f;
-            //    break;
+                //case EnemyState.Die:
+                //    EnemyDie();
+                //    agent.speed = 0f;
+                //    break;
 
-            
+
         }
 
     }
 
     IEnumerator PatrolBehavior(Vector3[] wayPoints)
     {
- 
+
         Debug.Log("Patroling");
 
 
         int targetWaypointIndex = 1;
-        Vector3 targetWaypoint = wayPoints [targetWaypointIndex];
+        Vector3 targetWaypoint = wayPoints[targetWaypointIndex];
 
 
         while (true) {
-            if (!agent.pathPending || agent.remainingDistance < 0.5f) 
+            if (!agent.pathPending || agent.remainingDistance < 0.5f)
             {
                 targetWaypointIndex = (targetWaypointIndex + 1) % wayPoints.Length;
                 targetWaypoint = wayPoints[targetWaypointIndex];
@@ -461,7 +468,7 @@ public class EnemyCtrl : MonoBehaviour
                 agent.SetDestination(targetWaypoint);
                 yield return new WaitForSeconds(waitTime);
             }
-    
+
             yield return null;
 
         }
@@ -510,16 +517,16 @@ public class EnemyCtrl : MonoBehaviour
         Vector3 startPos = pathHolder.GetChild(0).transform.position;
         Vector3 previousPos = startPos;
         Gizmos.color = Color.yellow;
-        foreach (Transform waypoint in pathHolder) 
+        foreach (Transform waypoint in pathHolder)
         {
-            Gizmos.DrawSphere(waypoint.position,.3f);
-            Gizmos.DrawLine(previousPos,waypoint.position);
+            Gizmos.DrawSphere(waypoint.position, .3f);
+            Gizmos.DrawLine(previousPos, waypoint.position);
             previousPos = waypoint.position;
         }
-        Gizmos.DrawLine(previousPos,startPos);
+        Gizmos.DrawLine(previousPos, startPos);
 
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position,transform.forward* viewDistance);
+        Gizmos.DrawRay(transform.position, transform.forward * viewDistance);
 
 
         /*Gizmos.color = Color.blue;
@@ -527,11 +534,11 @@ public class EnemyCtrl : MonoBehaviour
 
     }
 
-    void IdleBehavior() 
+    void IdleBehavior()
     {
         Debug.Log("Idle");
-        
-        if (stateTimer<idleTime)
+
+        if (stateTimer < idleTime)
         {
             Debug.Log("StateTimer<idleTime");
             stateTimer += Time.deltaTime;
@@ -544,10 +551,10 @@ public class EnemyCtrl : MonoBehaviour
             stateTimer = 0;
         }
     }
-  
- 
 
-    IEnumerator ChaseBehavior() 
+
+
+    IEnumerator ChaseBehavior()
     {
         Debug.Log("Chasing");
         chaseTimer = 0f;
@@ -556,7 +563,7 @@ public class EnemyCtrl : MonoBehaviour
         while (currentState == EnemyState.Chase && !isDead)
         {
             //Can See Player
-            if (currentAlertLevel == maxAlertLevel)
+            if (CanSeePlayer() || currentAlertLevel >= chasedLevel)
             {
                 lastShownPos = player.position;
                 agent.SetDestination(player.position);
@@ -569,10 +576,31 @@ public class EnemyCtrl : MonoBehaviour
             }
             else //Cant See
             {
-                ChangeState(EnemyState.Search);
-                yield break;
+                if (currentAlertLevel < chasedLevel)
+                {
+                    ChangeState(EnemyState.Search);
+                    yield break;
+                }
+                else
+                {
+                    // 追击玩家最后出现的位置
+                    agent.SetDestination(lastShownPos);
+
+                    // 如果已经接近最后位置但仍看不到玩家
+                    if (Vector3.Distance(transform.position, lastShownPos) < 1.5f)
+                    {
+                        chaseTimer += Time.deltaTime;
+
+                        // 如果在最后位置附近找了一段时间还是找不到，转入搜索状态
+                        if (chaseTimer > 3.0f)
+                        {
+                            ChangeState(EnemyState.Search);
+                            yield break;
+                        }
+                    }
+                }
             }
-           
+
             yield return null;
 
         }
@@ -588,7 +616,7 @@ public class EnemyCtrl : MonoBehaviour
     }
 
 
-    IEnumerator AttackBehavior() 
+    IEnumerator AttackBehavior()
     {
         while (true)
         {
@@ -602,7 +630,7 @@ public class EnemyCtrl : MonoBehaviour
                     //enemyADS.PlayOneShot(attacking);  
                     //先禁用，不然老报错
                     //EnemyHpCtrl();
-                    canAttack= false;
+                    canAttack = false;
                     yield return new WaitForSeconds(2f);
                     canAttack = true;
                 }
@@ -612,30 +640,95 @@ public class EnemyCtrl : MonoBehaviour
         }
     }
 
-    void SearchArea()
+ void SearchArea()
+{
+    Debug.Log("Search");
+    
+    // 如果能直接看到玩家，立即切换回追击状态
+    if (CanSeePlayer())
     {
-       /* if (CanSeePlayer())
+        ChangeState(EnemyState.Chase);
+        return;
+    }
+    
+    if (searchTimer < searchDuration)
+    {
+        searchTimer += Time.deltaTime;
+        
+        // 如果正在调查声音
+        if (isInvestigatingSound)
         {
-            ChangeState(EnemyState.Chase);
-            return;
-        }*/
-
-        Debug.Log("Search");
-            if (searchTimer < searchDuration)
+            // 如果没有路径或已到达声音位置
+            if (!agent.hasPath || Vector3.Distance(transform.position, soundInvestigationPosition) < 1.5f || agent.remainingDistance < 0.5f)
             {
-                searchTimer += Time.deltaTime;
-                if (!agent.hasPath || agent.remainingDistance < 0.5f)
+                // 到达声音位置后，向四周搜索
+                Vector3 randomPoint = RandomNavMeshPoint(soundInvestigationPosition, patrolRadius/2);
+                agent.SetDestination(randomPoint);
+                
+                // 如果已经在声音位置搜索了一段时间，不再特别关注它
+                if (Vector3.Distance(transform.position, soundInvestigationPosition) < 3f)
                 {
-                    Vector3 randomPoint = RandomNavMeshPoint(lastShownPos, patrolRadius);
-                    agent.SetDestination(randomPoint);
+                    isInvestigatingSound = false;
                 }
             }
             else
             {
-                ChangeState(EnemyState.Return);
+                // 继续前往声音位置
+                agent.SetDestination(soundInvestigationPosition);
             }
+        }
+        // 如果不是调查声音，就是普通搜索
+        else
+        {
+            // 如果没有路径或已到达目标点，设置新的随机搜索点
+            if (!agent.hasPath || agent.remainingDistance < 0.5f)
+            {
+                Vector3 randomPoint = RandomNavMeshPoint(lastShownPos, patrolRadius);
+                agent.SetDestination(randomPoint);
+            }
+        }
+    }
+    else
+    {
+        // 搜索时间结束，重置声音调查状态
+        isInvestigatingSound = false;
+        // 返回初始位置
+        ChangeState(EnemyState.Return);
+    }
+}
+
+    public void CheckForSound()
+    { 
         
-       
+    }
+
+    private Vector3 soundInvestigationPosition;
+    private bool isInvestigatingSound = false;
+
+    public void InvestigateSound(Vector3 soundPosition)
+    {
+        // 保存声音位置
+        soundInvestigationPosition = soundPosition;
+        isInvestigatingSound = true;
+
+        // 根据当前状态和警戒值决定行为
+        if (currentState == EnemyState.Idle || currentState == EnemyState.Patrol)
+        {
+            // 如果当前在巡逻或待机，直接去调查
+            ChangeState(EnemyState.Search);
+        }
+        else if (currentState == EnemyState.Chase)
+        {
+            // 如果当前在追逐玩家，但声音足够引人注目，可能会分心去看
+            // 这取决于游戏设计，可以注释掉这部分如果你不希望敌人在追逐中被分心
+            if (currentAlertLevel < maxAlertLevel * 0.7f) // 如果不确定玩家在哪
+            {
+                ChangeState(EnemyState.Search);
+            }
+        }
+
+        // 无论如何，更新警戒值
+        playerDetected();
     }
 
     private Vector3 RandomNavMeshPoint(Vector3 center, float radius) 
@@ -650,14 +743,5 @@ public class EnemyCtrl : MonoBehaviour
 
         return center;
     }
-
-    //public void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.gameObject.CompareTag("Player"))
-    //    {
-    //        Instantiate(explosionEffectPreFab, explosionPos.position, Quaternion.identity);
-    //        Debug.Log("炸了");
-    //    }
-    //}
 
 }

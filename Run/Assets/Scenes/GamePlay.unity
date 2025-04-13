@@ -508,6 +508,7 @@ MonoBehaviour:
   patrolRadius: 20
   currentAlertLevel: 0
   maxAlertLevel: 10
+  chasedLevel: 7
   lastAlertTriggerTime: 0
   quietTime: 3
   sliderGameObj: {fileID: 1463183464}
@@ -516,7 +517,7 @@ MonoBehaviour:
   worryString: '?'
   image: {fileID: 660423544}
   spotLight: {fileID: 973854641}
-  viewDistance: 10
+  viewDistance: 5
   viewMask:
     serializedVersion: 2
     m_Bits: 256
@@ -610,6 +611,8 @@ MonoBehaviour:
   playerController: {fileID: 2972037835945180375}
   enemyCtrl: {fileID: 213639261}
   alertRadius: 15.62
+  projectileSoundMultiplier: 1.5
+  shouldInvestigateProjectileSounds: 1
 --- !u!1 &242553357
 GameObject:
   m_ObjectHideFlags: 0
@@ -624,7 +627,7 @@ GameObject:
   - component: {fileID: 242553358}
   m_Layer: 6
   m_Name: Cube (2)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -710,13 +713,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 242553357}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.1651799, y: -0, z: -0, w: 0.98626345}
-  m_LocalPosition: {x: 9.1457, y: 1.7, z: -13.799999}
+  m_LocalRotation: {x: 0.5937299, y: -0, z: -0, w: 0.80466443}
+  m_LocalPosition: {x: 9.1457, y: 1.4, z: -9.6}
   m_LocalScale: {x: 100.32583, y: 0.111271374, z: 17.488476}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1367345790}
-  m_LocalEulerAnglesHint: {x: 19.015, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 72.844, y: 0, z: 0}
 --- !u!1 &302734488
 GameObject:
   m_ObjectHideFlags: 0
@@ -958,7 +961,7 @@ GameObject:
   - component: {fileID: 494490353}
   m_Layer: 6
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1522,6 +1525,7 @@ GameObject:
   - component: {fileID: 815615551}
   - component: {fileID: 815615550}
   - component: {fileID: 815615549}
+  - component: {fileID: 815615554}
   m_Layer: 3
   m_Name: Cube (3)
   m_TagString: Untagged
@@ -1555,7 +1559,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!65 &815615550
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1638,12 +1642,28 @@ Transform:
   m_GameObject: {fileID: 815615548}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 1.7681, z: -2.5}
+  m_LocalPosition: {x: 9.87, y: 1.7681, z: -9.1}
   m_LocalScale: {x: 0.49324, y: 0.49324, z: 0.49324}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &815615554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815615548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02d326d7a4712f846b700cd5f246d72f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundIntensity: 8
+  soundRadius: 20
+  soundDuration: 3
+  showDebug: 1
 --- !u!1 &875823058
 GameObject:
   m_ObjectHideFlags: 0
@@ -1959,7 +1979,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!54 &1036662471
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2117,6 +2137,7 @@ GameObject:
   - component: {fileID: 1116317386}
   - component: {fileID: 1116317385}
   - component: {fileID: 1116317387}
+  - component: {fileID: 1116317388}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -2184,6 +2205,18 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+--- !u!114 &1116317388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1116317383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c3314641d76dc94aab893589907e1c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1116383101
 GameObject:
   m_ObjectHideFlags: 0
@@ -2457,7 +2490,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!54 &1259568801
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3903,6 +3936,8 @@ MonoBehaviour:
   playerController: {fileID: 0}
   enemyCtrl: {fileID: 213639261}
   alertRadius: 0
+  projectileSoundMultiplier: 1.5
+  shouldInvestigateProjectileSounds: 1
 --- !u!1 &2054331455
 GameObject:
   m_ObjectHideFlags: 0
