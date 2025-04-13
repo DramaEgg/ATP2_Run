@@ -41,8 +41,8 @@ namespace StarterAssets
         public bool isCrouching = false;
         public float standHeight = 1.58f;
 
-        [Header("Player in Grass-隐匿")]
-        public bool isInGrass = false;
+        [Header("Player Hiding-隐匿")]
+        public bool isHiding = false;
 
         [Header("Player Steap Sound")]
         public float currentSound;
@@ -50,6 +50,8 @@ namespace StarterAssets
         public float walkSound = 5;
         public float sprintSound = 8;
         public float crouchSound = 3;
+
+        private Collider playerCollider ;
 
 
 
@@ -173,6 +175,7 @@ namespace StarterAssets
             _input = GetComponent<StarterAssetsInputs>();
 #if ENABLE_INPUT_SYSTEM 
             _playerInput = GetComponent<PlayerInput>();
+
 #else
 			Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
@@ -188,6 +191,7 @@ namespace StarterAssets
             staminaSlider.value = currentStamina;
             staminaSliderGOBJ.SetActive(false);
 
+            playerCollider = GetComponent<Collider>();
         }
 
         private void Update()
@@ -409,7 +413,24 @@ namespace StarterAssets
             }
         }
 
+        /// <summary>
+        /// Hiding in Stall Function 藏匿系统（进柜+出柜
+        /// </summary>
+        public void EnterHidingStall()
+        { 
+            isHiding= true;
+            currentSound = 0;
 
+        }
+
+        public void ExitHidingStall()
+        { 
+            isHiding= false;
+        }
+
+        /// <summary>
+        /// Jump 跳跃
+        /// </summary>
         private void JumpAndGravity()
         {
             if (Grounded)

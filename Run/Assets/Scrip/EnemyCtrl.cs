@@ -353,8 +353,23 @@ public class EnemyCtrl : MonoBehaviour
 
             case EnemyState.Chase:
                 //ChaseBehavior();
-                //change it into IEn
-                if (currentAlertLevel < chasedLevel && Vector3.Distance(transform.position, player.position) > viewDistance)
+
+                if (!CanSeePlayer())
+                {
+                    // 如果玩家在藏匿或者敌人找不到玩家，进入搜索状态
+                    if (playerController != null && playerController.isHiding)
+                    {
+                        // 玩家正在藏匿，立即进入搜索状态
+                        ChangeState(EnemyState.Search);
+                    }
+                    else if (Vector3.Distance(transform.position, player.position) > viewDistance)
+                    {
+                        // 距离过远，进入搜索状态
+                        ChangeState(EnemyState.Search);
+                    }
+                }
+                // 保留原有的逻辑
+                else if (currentAlertLevel < chasedLevel && Vector3.Distance(transform.position, player.position) > viewDistance)
                 {
                     ChangeState(EnemyState.Search);
                 }
@@ -362,10 +377,6 @@ public class EnemyCtrl : MonoBehaviour
 
             case EnemyState.Attack:
                 //AttackBehavior();
-                if (EnemyHP <= 0)
-                {
-                    ChangeState(EnemyState.Die);
-                }
                 break;
 
             case EnemyState.Search:
@@ -628,7 +639,7 @@ public class EnemyCtrl : MonoBehaviour
     {
         while (true)
         {
-            if (Vector3.Distance(transform.position, player.position) < attackDistance)
+            if (CanSeePlayer() && Vector3.Distance(transform.position, player.position) < attackDistance)
             {
                 if (canAttack)
                 {
