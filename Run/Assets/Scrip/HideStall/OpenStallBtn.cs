@@ -6,7 +6,7 @@ public class OpenStallBtn : MonoBehaviour
 {
     public bool doorOpened = false;//false是关，true是开门
 
-    public Transform pivotPoint,detectCenter;
+    public Transform pivotPoint,detectCenter; 
     public float rotationSpeed = 90f;
 
     //public GameObject targetDoor;
