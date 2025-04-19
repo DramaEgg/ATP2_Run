@@ -93,8 +93,8 @@ public class EnemyCtrl : MonoBehaviour
     public float damageValue;
     public float EnemyHP;
 
-    //public Animator animator;
-    //public SpriteRenderer spriteRenderer;
+    public Animator animator;
+    public SpriteRenderer spriteRenderer;
 
     //public AudioSource enemyADS;
     //public AudioClip attacking;
@@ -165,17 +165,17 @@ public class EnemyCtrl : MonoBehaviour
         AlertSlider();
 
         //Í¼Æ¬³¯Ïò
-        //if (agent.velocity.sqrMagnitude > 0.01f)
-        //{
-        //    if (agent.velocity.x>0)
-        //    {
-        //        spriteRenderer.flipX= false;
-        //    }
-        //    else
-        //    {
-        //        spriteRenderer.flipX = true;
-        //    }
-        //}
+        if (agent.velocity.sqrMagnitude > 0.01f)
+        {
+            if (agent.velocity.x > 0)
+            {
+                spriteRenderer.flipX = false;
+            }
+            else
+            {
+                spriteRenderer.flipX = true;
+            }
+        }
 
         //nemyHpCtrl();
 

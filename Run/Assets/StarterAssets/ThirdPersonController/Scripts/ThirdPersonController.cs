@@ -53,6 +53,12 @@ namespace StarterAssets
 
         private Collider playerCollider ;
 
+        [Header("Animator-动画机")]
+        public Animator animator;
+        public PlayerInteraction playerInteraction;
+        public SpriteRenderer spriteRenderer;
+
+
 
 
         [Tooltip("How fast the character turns to face movement direction")]
@@ -126,16 +132,16 @@ namespace StarterAssets
         private float _fallTimeoutDelta;
 
         // animation IDs
-        private int _animIDSpeed;
-        private int _animIDGrounded;
-        private int _animIDJump;
-        private int _animIDFreeFall;
-        private int _animIDMotionSpeed;
+        //private int _animIDSpeed;
+        //private int _animIDGrounded;
+        //private int _animIDJump;
+        //private int _animIDFreeFall;
+        //private int _animIDMotionSpeed;
 
 #if ENABLE_INPUT_SYSTEM 
         private PlayerInput _playerInput;
 #endif
-        private Animator _animator;
+        //private Animator _animator;
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
@@ -170,7 +176,7 @@ namespace StarterAssets
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
             
-            _hasAnimator = TryGetComponent(out _animator);
+            //_hasAnimator = TryGetComponent(out _animator);
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
 #if ENABLE_INPUT_SYSTEM 
@@ -180,7 +186,7 @@ namespace StarterAssets
 			Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
 
-            AssignAnimationIDs();
+            //AssignAnimationIDs();
 
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
@@ -192,16 +198,18 @@ namespace StarterAssets
             staminaSliderGOBJ.SetActive(false);
 
             playerCollider = GetComponent<Collider>();
+            playerInteraction = GetComponent<PlayerInteraction>();
         }
 
         private void Update()
         {
-            _hasAnimator = TryGetComponent(out _animator);
+            //_hasAnimator = TryGetComponent(out _animator);
 
             JumpAndGravity();
             GroundedCheck();
             Move();
             MoveSoundVolume();
+            AnimatonController();
         }
 
         private void LateUpdate()
@@ -209,14 +217,14 @@ namespace StarterAssets
             CameraRotation();
         }
 
-        private void AssignAnimationIDs()
-        {
-            _animIDSpeed = Animator.StringToHash("Speed");
-            _animIDGrounded = Animator.StringToHash("Grounded");
-            _animIDJump = Animator.StringToHash("Jump");
-            _animIDFreeFall = Animator.StringToHash("FreeFall");
-            _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
-        }
+        //private void AssignAnimationIDs()
+        //{
+        //    _animIDSpeed = Animator.StringToHash("Speed");
+        //    _animIDGrounded = Animator.StringToHash("Grounded");
+        //    _animIDJump = Animator.StringToHash("Jump");
+        //    _animIDFreeFall = Animator.StringToHash("FreeFall");
+        //    _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+        //}
 
         private void GroundedCheck()
         {
@@ -226,11 +234,11 @@ namespace StarterAssets
             Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
                 QueryTriggerInteraction.Ignore);
 
-            // update animator if using character
-            if (_hasAnimator)
-            {
-                _animator.SetBool(_animIDGrounded, Grounded);
-            }
+            //// update animator if using character
+            //if (_hasAnimator)
+            //{
+            //    _animator.SetBool(_animIDGrounded, Grounded);
+            //}
         }
 
         private void CameraRotation()
@@ -274,15 +282,12 @@ namespace StarterAssets
                 targetSpeed = crouchSpeed;
                 _controller.height = crouchHeight;
 
-
-
             }
             else if (_input.sprint && currentStamina > 3f) //Sprint
             {
                 _controller.height = standHeight;
                 targetSpeed = SprintSpeed;
                 isSprinting = true;
-
             }
             else if (!_input.sprint || currentStamina <= 0f)  //Walk
             {
@@ -340,10 +345,21 @@ namespace StarterAssets
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
             // update animator if using character
-            if (_hasAnimator)
+            //if (_hasAnimator)
+            //{
+            //    _animator.SetFloat(_animIDSpeed, _animationBlend);
+            //    _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+            //}
+
+
+            // Sprite Facing
+            if (inputDirection.x > 0.1f)
             {
-                _animator.SetFloat(_animIDSpeed, _animationBlend);
-                _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+                spriteRenderer.flipX = true;
+            }
+            else if (inputDirection.x < -0.1f)
+            {
+                spriteRenderer.flipX = false;
             }
 
             UpdateStamina();
@@ -438,12 +454,12 @@ namespace StarterAssets
                 // reset the fall timeout timer
                 _fallTimeoutDelta = FallTimeout;
 
-                // update animator if using character
-                if (_hasAnimator)
-                {
-                    _animator.SetBool(_animIDJump, false);
-                    _animator.SetBool(_animIDFreeFall, false);
-                }
+                //// update animator if using character
+                //if (_hasAnimator)
+                //{
+                //    _animator.SetBool(_animIDJump, false);
+                //    _animator.SetBool(_animIDFreeFall, false);
+                //}
 
                 // stop our velocity dropping infinitely when grounded
                 if (_verticalVelocity < 0.0f)
@@ -457,11 +473,11 @@ namespace StarterAssets
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
 
-                    // update animator if using character
-                    if (_hasAnimator)
-                    {
-                        _animator.SetBool(_animIDJump, true);
-                    }
+                    //// update animator if using character
+                    //if (_hasAnimator)
+                    //{
+                    //    _animator.SetBool(_animIDJump, true);
+                    //}
                 }
 
                 // jump timeout
@@ -482,11 +498,11 @@ namespace StarterAssets
                 }
                 else
                 {
-                    // update animator if using character
-                    if (_hasAnimator)
-                    {
-                        _animator.SetBool(_animIDFreeFall, true);
-                    }
+                    //// update animator if using character
+                    //if (_hasAnimator)
+                    //{
+                    //    _animator.SetBool(_animIDFreeFall, true);
+                    //}
                 }
 
                 // if we are not grounded, do not jump
@@ -540,5 +556,63 @@ namespace StarterAssets
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
             }
         }
+
+        public void AnimatonController()
+        {
+            ////如果站着，则可以跑
+            //if (!isCrouching)
+            //{
+            //    if (!aiming)
+            //    {
+            //        animator.SetBool("IsStand", true);
+            //        if (targetSpeed !=0 )
+            //        {
+            //            animator.SetBool("IsRun", true);
+            //        }
+            //        else
+            //        {
+            //            animator.SetBool("IsRun", false);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        if (targetSpeed != 0)
+            //        { 
+            //            animator.
+            //        }
+
+            //    }
+
+
+            //}
+            //else  //蹲着的
+            //{
+
+            //}
+
+            animator.SetBool("IsStand", !isCrouching && !playerInteraction.isHolding && targetSpeed == 0f);
+            animator.SetBool("IsRun", !isCrouching && !playerInteraction.isHolding && targetSpeed != 0f);
+
+            animator.SetBool("IsCrouchIdle", isCrouching && !playerInteraction.isHolding && targetSpeed == 0f);
+            animator.SetBool("IsCrouchWalk", isCrouching && !playerInteraction.isHolding && targetSpeed != 0f);
+
+            animator.SetBool("IsAimIdle", !isCrouching && playerInteraction.isHolding && targetSpeed == 0f);
+            animator.SetBool("IsAimWalk", !isCrouching && playerInteraction.isHolding && targetSpeed != 0f);
+
+            //// 参考你的建议，新增蹲下瞄准状态：
+            //animator.SetBool("IsCrouchAimIdle", isCrouching && aiming && targetSpeed == 0f);
+            //animator.SetBool("IsCrouchAimWalk", isCrouching && aiming && targetSpeed != 0f);
+
+            // 最后处理开火：只在瞄准或蹲下瞄准时触发
+            //if ((animator.GetBool("IsAimIdle") ||
+            //     animator.GetBool("IsAimWalk") ||
+            //     animator.GetBool("IsCrouchAimIdle") ||
+            //     animator.GetBool("IsCrouchAimWalk"))
+            //    && Input.GetMouseButtonDown(0))
+            //{
+            //    animator.SetTrigger("Shoot");
+            //}
+        }
+
     }
-}
+ }

@@ -32,6 +32,7 @@ public class PlayerInteraction : MonoBehaviour
 
     // 按键持续时间跟踪
     public bool isFKeyDown = false;
+    public Animator animator;
 
     public void Start()
     {
@@ -86,12 +87,6 @@ public class PlayerInteraction : MonoBehaviour
             Debug.Log("Down");
         }
         
-        //if (Input.GetKeyUp(KeyCode.F))
-        //{
-        //    DropObject();
-        //    isFKeyDown = false;
-        //    Debug.Log("UP");
-        //}
 
 
         if (isFKeyDown && isHolding)
@@ -104,9 +99,11 @@ public class PlayerInteraction : MonoBehaviour
             else if (Input.GetMouseButtonUp(0) && isCharging)
             {
                 LaunchObj();
+                animator.SetTrigger("Shoot");
                 isFKeyDown = false;
             }
             Charging();
+            animator.ResetTrigger("Shoot");
         }
         else
         {
@@ -285,6 +282,7 @@ public class PlayerInteraction : MonoBehaviour
 
             float actualLaunchForce = launchForce * currentForceMultiplier;
             heldRigidbody.AddForce(transform.forward * actualLaunchForce, ForceMode.Impulse);
+            
 
             // 重置变量
             heldObject = null;
